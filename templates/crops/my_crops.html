@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "My Crops" %}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Crop Recommendation Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">{% trans "Get Crop Recommendations" %}</h2>
+            <p class="text-gray-600 mb-6">{% trans "Fill in your field details to get personalized crop recommendations." %}</p>
+            
+            <form id="recommendationForm" class="space-y-6">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="form-group">
+                        <label for="soilType" class="block text-sm font-medium text-gray-700">{% trans "Soil Type" %}</label>
+                        <select id="soilType" name="soilType" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                            <option value="">{% trans "Select Soil Type" %}</option>
+                            <option value="clay">{% trans "Clay" %}</option>
+                            <option value="loam">{% trans "Loam" %}</option>
+                            <option value="sandy">{% trans "Sandy" %}</option>
+                            <option value="silt">{% trans "Silt" %}</option>
+                            <option value="black">{% trans "Black" %}</option>
+                            <option value="red">{% trans "Red" %}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="climateZone" class="block text-sm font-medium text-gray-700">{% trans "Climate Zone" %}</label>
+                        <select id="climateZone" name="climateZone" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                            <option value="">{% trans "Select Climate Zone" %}</option>
+                            <option value="tropical">{% trans "Tropical" %}</option>
+                            <option value="subtropical">{% trans "Subtropical" %}</option>
+                            <option value="temperate">{% trans "Temperate" %}</option>
+                            <option value="arid">{% trans "Arid" %}</option>
+                            <option value="semiarid">{% trans "Semi-Arid" %}</option>
+                            <option value="continental">{% trans "Continental" %}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fieldArea" class="block text-sm font-medium text-gray-700">{% trans "Field Area (acres)" %}</label>
+                        <input type="number" id="fieldArea" name="fieldArea" required min="0.1" step="0.1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="soilPH" class="block text-sm font-medium text-gray-700">{% trans "Soil pH (if known)" %}</label>
+                        <input type="number" id="soilPH" name="soilPH" min="0" max="14" step="0.1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rainfall" class="block text-sm font-medium text-gray-700">{% trans "Average Rainfall (mm/year)" %}</label>
+                        <input type="number" id="rainfall" name="rainfall" min="0" step="10" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="irrigationMethod" class="block text-sm font-medium text-gray-700">{% trans "Irrigation Availability" %}</label>
+                        <select id="irrigationMethod" name="irrigationMethod" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                            <option value="">{% trans "Select Irrigation Method" %}</option>
+                            <option value="drip">{% trans "Drip Irrigation" %}</option>
+                            <option value="sprinkler">{% trans "Sprinkler" %}</option>
+                            <option value="flood">{% trans "Flood Irrigation" %}</option>
+                            <option value="rainfed">{% trans "Rainfed Only" %}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="growingSeason" class="block text-sm font-medium text-gray-700">{% trans "Growing Season" %}</label>
+                        <select id="growingSeason" name="growingSeason" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                            <option value="">{% trans "Select Growing Season" %}</option>
+                            <option value="spring">{% trans "Spring" %}</option>
+                            <option value="summer">{% trans "Summer" %}</option>
+                            <option value="fall">{% trans "Fall" %}</option>
+                            <option value="winter">{% trans "Winter" %}</option>
+                            <option value="yearround">{% trans "Year-round" %}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="marketPreference" class="block text-sm font-medium text-gray-700">{% trans "Market Preference" %}</label>
+                        <select id="marketPreference" name="marketPreference" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                            <option value="">{% trans "Select Market Preference" %}</option>
+                            <option value="local">{% trans "Local Market" %}</option>
+                            <option value="export">{% trans "Export Market" %}</option>
+                            <option value="processing">{% trans "Processing Industry" %}</option>
+                            <option value="subsistence">{% trans "Subsistence Farming" %}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-center">
+                    <button type="submit" class="bg-green-700 text-white px-6 py-2 rounded-lg hover:bg-green-800 transition duration-300">
+                        {% trans "Get Recommendations" %}
+                    </button>
+                </div>
+            </form>
+
+            <div id="loadingIndicator" class="hidden mt-6 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-green-700 border-t-transparent"></div>
+                <p class="mt-2 text-gray-600">{% trans "Getting recommendations..." %}</p>
+            </div>
+
+            <div id="recommendationResults" class="hidden mt-6">
+                <!-- Results will be displayed here -->
+            </div>
+        </div>
+
+        <!-- Existing Crops Section -->
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">{% trans "My Crops" %}</h1>
+            <a href="{% url 'crops:create' %}" class="bg-green-700 text-white px-6 py-2 rounded-lg hover:bg-green-800 transition duration-300">
+                {% trans "Add New Crop" %}
+            </a>
+        </div>
+
+        {% if crops %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for crop in crops %}
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <div class="p-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-2">{{ crop.name }}</h2>
+                            <p class="text-gray-600 mb-4">{{ crop.description|truncatechars:100 }}</p>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <p class="text-sm text-gray-500">{% trans "Quantity" %}</p>
+                                    <p class="font-medium">{{ crop.quantity }} {{ crop.unit }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">{% trans "Price" %}</p>
+                                    <p class="font-medium">₹{{ crop.price_per_unit }}/{{ crop.unit }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <span class="px-3 py-1 text-sm font-medium rounded-full {% if crop.is_available %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {% if crop.is_available %}{% trans "Available" %}{% else %}{% trans "Sold" %}{% endif %}
+                                </span>
+                                <div class="space-x-2">
+                                    <a href="{% url 'crops:update' crop.id %}" class="text-green-700 hover:text-green-800">
+                                        {% trans "Edit" %}
+                                    </a>
+                                    <a href="{% url 'crops:delete' crop.id %}" class="text-red-700 hover:text-red-800">
+                                        {% trans "Delete" %}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <p class="text-gray-600 mb-4">{% trans "You haven't listed any crops yet." %}</p>
+                <a href="{% url 'crops:create' %}" class="bg-green-700 text-white px-6 py-2 rounded-lg hover:bg-green-800 transition duration-300">
+                    {% trans "Add Your First Crop" %}
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('recommendationForm');
+    const resultsDiv = document.getElementById('recommendationResults');
+    const loadingDiv = document.getElementById('loadingIndicator');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading indicator
+        loadingDiv.classList.remove('hidden');
+        resultsDiv.classList.add('hidden');
+
+        // Get form data
+        const formData = new FormData(form);
+
+        // Send AJAX request
+        fetch('{% url "crops:crop_recommendation" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Hide loading indicator
+            loadingDiv.classList.add('hidden');
+
+            if (data.success) {
+                // Display results
+                const resultsHtml = data.crops.map(crop => `
+                    <div class="bg-white rounded-lg shadow-md p-6 mb-4">
+                        <div class="flex items-start">
+                            ${crop.image_url ? `
+                                <img src="${crop.image_url}" alt="${crop.name}" 
+                                     class="w-24 h-24 object-cover rounded-lg mr-4">
+                            ` : ''}
+                            <div class="flex-1">
+                                <h3 class="text-xl font-semibold mb-2">${crop.name}</h3>
+                                <p class="text-gray-600 mb-2">${crop.description}</p>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <span class="text-sm text-gray-500">${crop.price_per_unit} per ${crop.unit}</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="text-sm font-medium mr-2">Suitability:</span>
+                                        <div class="w-32 bg-gray-200 rounded-full h-2.5">
+                                            <div class="bg-green-600 h-2.5 rounded-full" 
+                                                 style="width: ${crop.suitability}%"></div>
+                                        </div>
+                                        <span class="text-sm font-medium ml-2">${crop.suitability}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                resultsDiv.innerHTML = resultsHtml;
+                resultsDiv.classList.remove('hidden');
+            } else {
+                // Show error message
+                resultsDiv.innerHTML = `
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                        <p>${data.error || 'An error occurred while getting recommendations.'}</p>
+                    </div>
+                `;
+                resultsDiv.classList.remove('hidden');
+            }
+        })
+        .catch(error => {
+            loadingDiv.classList.add('hidden');
+            resultsDiv.innerHTML = `
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    <p>An error occurred while processing your request.</p>
+                </div>
+            `;
+            resultsDiv.classList.remove('hidden');
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

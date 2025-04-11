@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "My Demands" %}{% endblock %}
+
+{% block content %}
+<div class="bg-white bg-opacity-90 rounded-lg shadow-lg p-6">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">{% trans "My Demands" %}</h1>
+        <p class="mt-2 text-gray-600">{% trans "View and manage your demands for crops." %}</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for demand in demands %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+            <div class="p-6">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900">{{ demand.crop_name }}</h2>
+                        <p class="mt-1 text-sm text-gray-500">{{ demand.created_at|date:"F j, Y" }}</p>
+                    </div>
+                    <span class="px-3 py-1 text-sm font-medium rounded-full {% if demand.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {% if demand.is_active %}{% trans "Active" %}{% else %}{% trans "Closed" %}{% endif %}
+                    </span>
+                </div>
+                <p class="mt-2 text-gray-600">{{ demand.description|truncatewords:20 }}</p>
+                <div class="mt-4 grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-500">{% trans "Quantity" %}</p>
+                        <p class="font-medium">{{ demand.quantity }} {{ demand.unit }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">{% trans "Max Price" %}</p>
+                        <p class="font-medium">₹{{ demand.max_price }}/{{ demand.unit }}</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <p class="text-sm text-gray-500">{% trans "Location" %}</p>
+                    <p class="font-medium">{{ demand.district }}, {{ demand.state }}</p>
+                </div>
+                <div class="mt-6 flex justify-between items-center">
+                    <a href="{% url 'bidding:demand_detail' demand.id %}" class="text-green-600 hover:text-green-700 font-medium">
+                        {% trans "View Details" %}
+                    </a>
+                    {% if demand.is_active %}
+                    <span class="text-sm text-gray-500">
+                        {% trans "Responses:" %} {{ demand.responses.count }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="mt-2 text-lg font-medium text-gray-900">{% trans "No demands found" %}</h3>
+            <p class="mt-1 text-gray-500">{% trans "You haven't created any demands yet." %}</p>
+            <div class="mt-6">
+                <a href="{% url 'bidding:create_demand' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700">
+                    {% trans "Create Demand" %}
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

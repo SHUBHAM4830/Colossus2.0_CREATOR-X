@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Buyer Dashboard" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">{% trans "Buyer Dashboard" %}</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- My Bids Section -->
+            <div class="bg-green-50 rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-green-800 mb-4">{% trans "My Bids" %}</h2>
+                {% if bids %}
+                    <div class="space-y-4">
+                        {% for bid in bids %}
+                            <div class="bg-white rounded-lg p-4 shadow">
+                                <h3 class="font-medium text-gray-900">{{ bid.crop.name }}</h3>
+                                <p class="text-sm text-gray-600">{{ bid.crop.description }}</p>
+                                <div class="mt-2 flex justify-between items-center">
+                                    <span class="text-sm font-medium text-green-600">{{ bid.quantity }} {% trans "units" %}</span>
+                                    <span class="text-sm font-medium text-green-600">₹{{ bid.price }}/{% trans "unit" %}</span>
+                                </div>
+                                <div class="mt-2">
+                                    <span class="text-sm {% if bid.status == 'accepted' %}text-green-600{% elif bid.status == 'rejected' %}text-red-600{% else %}text-yellow-600{% endif %}">
+                                        {% trans "Status" %}: {{ bid.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-600">{% trans "No bids placed yet." %}</p>
+                {% endif %}
+            </div>
+
+            <!-- My Demands Section -->
+            <div class="bg-green-50 rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-green-800 mb-4">{% trans "My Demands" %}</h2>
+                {% if demands %}
+                    <div class="space-y-4">
+                        {% for demand in demands %}
+                            <div class="bg-white rounded-lg p-4 shadow">
+                                <h3 class="font-medium text-gray-900">{{ demand.crop_name }}</h3>
+                                <p class="text-sm text-gray-600">{{ demand.description }}</p>
+                                <div class="mt-2">
+                                    <span class="text-sm font-medium text-green-600">{{ demand.quantity }} {% trans "units needed" %}</span>
+                                </div>
+                                <div class="mt-2">
+                                    <span class="text-sm text-gray-600">{% trans "Responses" %}: {{ demand.responses.count }}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-600">{% trans "No demands created yet." %}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">{% trans "Quick Actions" %}</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="{% url 'crops:list' %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-center">
+                    {% trans "Browse Crops" %}
+                </a>
+                <a href="{% url 'bidding:create_demand' %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-center">
+                    {% trans "Create Demand" %}
+                </a>
+                <a href="{% url 'bidding:demand_list' %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-center">
+                    {% trans "View All Demands" %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

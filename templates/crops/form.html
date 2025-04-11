@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if form.instance.pk %}{% trans "Edit Crop" %}{% else %}{% trans "Add New Crop" %}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white bg-opacity-90 rounded-lg shadow-lg p-8">
+        <h1 class="text-3xl font-bold text-green-800 mb-6">
+            {% if form.instance.pk %}
+                {% trans "Edit Crop" %}
+            {% else %}
+                {% trans "Add Your First Crop" %}
+            {% endif %}
+        </h1>
+
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            {{ form|crispy }}
+            
+            <div class="flex justify-end space-x-4">
+                <a href="{% url 'crops:my_crops' %}" class="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition duration-300">
+                    {% trans "Cancel" %}
+                </a>
+                <button type="submit" class="px-6 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 transition duration-300">
+                    {% if form.instance.pk %}
+                        {% trans "Update Crop" %}
+                    {% else %}
+                        {% trans "Add Crop" %}
+                    {% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

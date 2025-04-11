@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ crop.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white bg-opacity-90 rounded-lg shadow-lg overflow-hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
+            <!-- Crop Image -->
+            <div class="aspect-w-16 aspect-h-9">
+                {% if crop.image %}
+                    <img src="{{ crop.image.url }}" alt="{{ crop.name }}" 
+                         class="w-full h-96 object-cover rounded-lg">
+                {% else %}
+                    <img src="{% static 'img/default-crop.jpg' %}" alt="{{ crop.name }}"
+                         class="w-full h-96 object-cover rounded-lg">
+                {% endif %}
+            </div>
+
+            <!-- Crop Details -->
+            <div class="space-y-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">{{ crop.name }}</h1>
+                    <p class="mt-2 text-gray-600">{{ crop.description }}</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-500">{% trans "Category" %}</p>
+                        <p class="font-medium">{{ crop.category.name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">{% trans "Farmer" %}</p>
+                        <p class="font-medium">{{ crop.farmer.get_full_name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">{% trans "Quantity" %}</p>
+                        <p class="font-medium">{{ crop.quantity }} {{ crop.unit }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">{% trans "Price" %}</p>
+                        <p class="font-medium text-green-700">₹{{ crop.price_per_unit }}/{{ crop.unit }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">{% trans "Location" %}</p>
+                        <p class="font-medium">{{ crop.district }}, {{ crop.state }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">{% trans "Status" %}</p>
+                        <span class="px-3 py-1 text-sm font-medium rounded-full 
+                            {% if crop.status == 'available' %}bg-green-100 text-green-800
+                            {% elif crop.status == 'pending' %}bg-yellow-100 text-yellow-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if crop.status == 'available' %}{% trans "Available" %}
+                            {% elif crop.status == 'pending' %}{% trans "Pending" %}
+                            {% else %}{% trans "Sold" %}{% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Bids Section -->
+                {% if user.is_authenticated and user == crop.farmer and crop.status == 'available' %}
+                    <div class="pt-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">{% trans "Current Bids" %}</h3>
+                        {% if crop.bids.all %}
+                            <div class="space-y-4">
+                                {% for bid in crop.bids.all %}
+                                    {% if bid.status == 'pending' %}
+                                        <div class="bg-gray-50 p-4 rounded-lg">
+                                            <div class="flex justify-between items-center">
+                                                <div>
+                                                    <p class="font-medium">{{ bid.buyer.get_full_name }}</p>
+                                                    <p class="text-sm text-gray-600">₹{{ bid.price }}/{{ crop.unit }}</p>
+                                                    <p class="text-sm text-gray-600">{% trans "Quantity" %}: {{ bid.quantity }} {{ crop.unit }}</p>
+                                                    {% if bid.message %}
+                                                        <p class="text-sm text-gray-600 mt-2">{{ bid.message }}</p>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="flex space-x-2">
+                                                    <form action="{% url 'bidding:accept_bid' bid.id %}" method="post">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800 transition duration-300">
+                                                            {% trans "Accept" %}
+                                                        </button>
+                                                    </form>
+                                                    <form action="{% url 'bidding:reject_bid' bid.id %}" method="post">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-800 transition duration-300">
+                                                            {% trans "Reject" %}
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-gray-600">{% trans "No bids yet" %}</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                {% if user.is_authenticated and not user.is_farmer and crop.status == 'available' %}
+                    <div class="pt-6">
+                        <a href="{% url 'bidding:place_bid' crop.id %}" 
+                           class="w-full bg-green-700 text-white px-6 py-3 rounded-lg hover:bg-green-800 transition duration-300 text-center block">
+                            {% trans "Place Bid" %}
+                        </a>
+                    </div>
+                {% endif %}
+
+                {% if user.is_authenticated and user == crop.farmer %}
+                    <div class="pt-6 flex space-x-4">
+                        <a href="{% url 'crops:update' crop.id %}" 
+                           class="flex-1 bg-green-700 text-white px-6 py-3 rounded-lg hover:bg-green-800 transition duration-300 text-center">
+                            {% trans "Edit Crop" %}
+                        </a>
+                        <a href="{% url 'crops:delete' crop.id %}" 
+                           class="flex-1 bg-red-700 text-white px-6 py-3 rounded-lg hover:bg-red-800 transition duration-300 text-center">
+                            {% trans "Delete Crop" %}
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

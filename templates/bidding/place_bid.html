@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Place Bid" %}{% endblock %}
+
+{% block content %}
+<div class="bg-white bg-opacity-90 rounded-lg shadow-lg p-6 max-w-3xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">{% trans "Place Bid" %}</h1>
+        <p class="mt-2 text-gray-600">{% trans "Place your bid for the following crop:" %}</p>
+    </div>
+
+    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900">{{ crop.name }}</h2>
+        <p class="mt-2 text-gray-600">{{ crop.description }}</p>
+        <div class="mt-4 grid grid-cols-2 gap-4">
+            <div>
+                <p class="text-sm text-gray-500">{% trans "Available Quantity" %}</p>
+                <p class="font-medium">{{ crop.quantity }} {{ crop.unit }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">{% trans "Current Price" %}</p>
+                <p class="font-medium">₹{{ crop.price_per_unit }}/{{ crop.unit }}</p>
+            </div>
+        </div>
+        <div class="mt-4">
+            <p class="text-sm text-gray-500">{% trans "Location" %}</p>
+            <p class="font-medium">{{ crop.district }}, {{ crop.state }}</p>
+        </div>
+    </div>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        {{ form|crispy }}
+        
+        <div class="flex justify-end space-x-4">
+            <a href="{% url 'crops:detail' crop.id %}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                {% trans "Cancel" %}
+            </a>
+            <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                {% trans "Place Bid" %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %} 

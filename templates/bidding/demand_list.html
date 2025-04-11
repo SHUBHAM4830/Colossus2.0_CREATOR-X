@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Active Demands" %}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">{% trans "Active Demands" %}</h1>
+            {% if user.is_buyer %}
+            <a href="{% url 'bidding:create_demand' %}" class="bg-green-700 text-white px-6 py-2 rounded-lg hover:bg-green-800 transition duration-300">
+                {% trans "Create Demand" %}
+            </a>
+            {% endif %}
+        </div>
+
+        {% if demands %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for demand in demands %}
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <div class="p-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-2">{{ demand.title }}</h2>
+                            <p class="text-gray-600 mb-4">{{ demand.description|truncatechars:100 }}</p>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <p class="text-sm text-gray-500">{% trans "Quantity" %}</p>
+                                    <p class="font-medium">{{ demand.quantity }} {{ demand.unit }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">{% trans "Max Price" %}</p>
+                                    <p class="font-medium">₹{{ demand.max_price }}/{{ demand.unit }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-500">
+                                    {% trans "Posted by" %} {{ demand.user.get_full_name }}
+                                </span>
+                                <a href="{% url 'bidding:demand_detail' demand.id %}" class="text-green-700 hover:text-green-800">
+                                    {% trans "View Details" %}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <p class="text-gray-600 mb-4">{% trans "No active demands found." %}</p>
+                {% if user.is_buyer %}
+                <a href="{% url 'bidding:create_demand' %}" class="bg-green-700 text-white px-6 py-2 rounded-lg hover:bg-green-800 transition duration-300">
+                    {% trans "Create Your First Demand" %}
+                </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

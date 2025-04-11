@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Crop Recommendation" %} - Krishibazaar{% endblock %}
+
+{% block extra_css %}
+<style>
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+.progress-bar {
+    transition: width 0.6s ease;
+}
+.crop-card {
+    transition: transform 0.3s ease;
+}
+.crop-card:hover {
+    transform: translateY(-5px);
+}
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin-bottom: 1rem;
+}
+.data-table {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+.data-table th, .data-table td {
+    padding: 0.75rem;
+    vertical-align: middle;
+}
+.data-table input, .data-table select {
+    width: 100%;
+}
+.real-time-results {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">{% trans "Crop Recommendation System" %}</h1>
+
+    {% if messages %}
+    <div class="mb-8">
+        {% for message in messages %}
+        <div class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Form Section -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <form id="recommendationForm" method="POST" class="space-y-6">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+                    {% if field.errors %}
+                    <div class="text-red-500 text-sm mt-1">
+                        {{ field.errors|join:", " }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="mt-6">
+                    <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                        {% trans "Get Recommendations" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="{% if not recommended_crops %}hidden{% endif %}">
+            <div id="loadingIndicator" class="hidden">
+                <div class="flex items-center justify-center p-8">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+                </div>
+            </div>
+
+            <div id="recommendationResults" class="space-y-8">
+                {% if recommended_crops %}
+                <!-- Suitability Chart -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold mb-4">{% trans "Crop Suitability Analysis" %}</h2>
+                    <div id="suitabilityChart"></div>
+                </div>
+
+                <!-- Profit Analysis Chart -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold mb-4">{% trans "Financial Analysis" %}</h2>
+                    <div id="profitChart"></div>
+                </div>
+
+                <!-- Market Analysis Chart -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold mb-4">{% trans "Market Analysis" %}</h2>
+                    <div id="marketChart"></div>
+                </div>
+
+                <!-- Recommended Crops -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold mb-4">{% trans "Recommended Crops" %}</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="cropCards">
+                        {% for crop in recommended_crops %}
+                        <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                            {% if crop.image_url %}
+                            <img src="{{ crop.image_url }}" alt="{{ crop.name }}" class="w-full h-48 object-cover rounded-lg mb-4">
+                            {% endif %}
+                            <h3 class="text-lg font-semibold">{{ crop.name }}</h3>
+                            <p class="text-gray-600 text-sm mb-2">{{ crop.description }}</p>
+                            <div class="space-y-1">
+                                <p><span class="font-medium">Suitability:</span> {{ crop.suitability_score }}%</p>
+                                <p><span class="font-medium">Est. Yield:</span> {{ crop.estimated_yield }} tons</p>
+                                <p><span class="font-medium">Est. Revenue:</span> ₹{{ crop.estimated_revenue|floatformat:2 }}</p>
+                                <p><span class="font-medium">Est. Profit:</span> ₹{{ crop.estimated_profit|floatformat:2 }}</p>
+                                <p><span class="font-medium">Profit Margin:</span> {{ crop.profit_margin }}%</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('recommendationForm');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const resultsSection = document.getElementById('resultsSection');
+    const recommendationResults = document.getElementById('recommendationResults');
+
+    // Function to create charts
+    function createCharts(data) {
+        // Clear any existing charts
+        if (window.suitabilityChart) window.suitabilityChart.destroy();
+        if (window.profitChart) window.profitChart.destroy();
+        if (window.marketChart) window.marketChart.destroy();
+
+        const cropNames = data.recommended_crops.map(crop => crop.name);
+        const suitabilityScores = data.recommended_crops.map(crop => crop.suitability_score);
+        const revenues = data.recommended_crops.map(crop => crop.estimated_revenue);
+        const costs = data.recommended_crops.map(crop => crop.estimated_cost);
+        const profits = data.recommended_crops.map(crop => crop.estimated_profit);
+
+        // Suitability Chart
+        const suitabilityData = [{
+            x: cropNames,
+            y: suitabilityScores,
+            type: 'bar',
+            marker: {
+                color: 'rgb(34, 197, 94)'
+            },
+            name: 'Suitability Score (%)'
+        }];
+
+        Plotly.newPlot('suitabilityChart', suitabilityData, {
+            title: 'Crop Suitability Scores',
+            yaxis: { title: 'Suitability Score (%)' }
+        });
+
+        // Profit Analysis Chart
+        const profitData = [{
+            x: cropNames,
+            y: revenues,
+            type: 'bar',
+            name: 'Revenue',
+            marker: { color: 'rgb(34, 197, 94)' }
+        }, {
+            x: cropNames,
+            y: costs,
+            type: 'bar',
+            name: 'Cost',
+            marker: { color: 'rgb(239, 68, 68)' }
+        }, {
+            x: cropNames,
+            y: profits,
+            type: 'bar',
+            name: 'Profit',
+            marker: { color: 'rgb(59, 130, 246)' }
+        }];
+
+        Plotly.newPlot('profitChart', profitData, {
+            title: 'Financial Analysis',
+            yaxis: { title: 'Amount (₹)' },
+            barmode: 'group'
+        });
+
+        // Market Analysis Chart
+        const marketData = [{
+            values: suitabilityScores,
+            labels: cropNames,
+            type: 'pie',
+            marker: {
+                colors: ['#22c55e', '#16a34a', '#15803d', '#166534', '#14532d']
+            }
+        }];
+
+        Plotly.newPlot('marketChart', marketData, {
+            title: 'Market Share Analysis'
+        });
+    }
+
+    // Function to create crop cards
+    function createCropCards(data) {
+        const cropCards = document.getElementById('cropCards');
+        cropCards.innerHTML = '';
+
+        data.recommended_crops.forEach(crop => {
+            const card = document.createElement('div');
+            card.className = 'border rounded-lg p-4 hover:shadow-md transition-shadow';
+            card.innerHTML = `
+                ${crop.image_url ? `<img src="${crop.image_url}" alt="${crop.name}" class="w-full h-48 object-cover rounded-lg mb-4">` : ''}
+                <h3 class="text-lg font-semibold">${crop.name}</h3>
+                <p class="text-gray-600 text-sm mb-2">${crop.description || ''}</p>
+                <div class="space-y-1">
+                    <p><span class="font-medium">Suitability:</span> ${crop.suitability_score}%</p>
+                    <p><span class="font-medium">Est. Yield:</span> ${crop.estimated_yield.toFixed(2)} tons</p>
+                    <p><span class="font-medium">Est. Revenue:</span> ₹${crop.estimated_revenue.toFixed(2)}</p>
+                    <p><span class="font-medium">Est. Profit:</span> ₹${crop.estimated_profit.toFixed(2)}</p>
+                    <p><span class="font-medium">Profit Margin:</span> ${crop.profit_margin.toFixed(2)}%</p>
+                </div>
+            `;
+            cropCards.appendChild(card);
+        });
+    }
+
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        loadingIndicator.classList.remove('hidden');
+        resultsSection.classList.remove('hidden');
+        recommendationResults.classList.add('hidden');
+
+        const formData = new FormData(form);
+        
+        fetch(form.action || window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                createCharts(data);
+                createCropCards(data);
+                recommendationResults.classList.remove('hidden');
+            } else {
+                throw new Error(data.errors || 'An error occurred');
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error.message);
+        })
+        .finally(() => {
+            loadingIndicator.classList.add('hidden');
+        });
+    });
+});
+</script>
+{% endblock %}

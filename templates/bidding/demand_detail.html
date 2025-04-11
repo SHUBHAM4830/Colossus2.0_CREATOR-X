@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ demand.title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">{{ demand.title }}</h1>
+                        <p class="text-sm text-gray-500 mt-1">
+                            {% trans "Posted by" %} {{ demand.user.get_full_name }}
+                        </p>
+                    </div>
+                    {% if demand.user == user %}
+                    <div class="flex space-x-2">
+                        <a href="{% url 'bidding:update_demand' demand.id %}" class="text-green-700 hover:text-green-800">
+                            {% trans "Edit" %}
+                        </a>
+                        <a href="{% url 'bidding:delete_demand' demand.id %}" class="text-red-700 hover:text-red-800">
+                            {% trans "Delete" %}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="prose max-w-none mb-6">
+                    {{ demand.description|linebreaks }}
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">{% trans "Quantity" %}</h3>
+                        <p class="text-lg font-semibold">{{ demand.quantity }} {{ demand.unit }}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">{% trans "Maximum Price" %}</h3>
+                        <p class="text-lg font-semibold">₹{{ demand.max_price }}/{{ demand.unit }}</p>
+                    </div>
+                </div>
+
+                {% if user.is_farmer and demand.user != user %}
+                <div class="mt-6">
+                    <a href="{% url 'bidding:create_bid' demand.id %}" class="bg-green-700 text-white px-6 py-2 rounded-lg hover:bg-green-800 transition duration-300">
+                        {% trans "Place Bid" %}
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

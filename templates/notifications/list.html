@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Notifications" %}{% endblock %}
+
+{% block content %}
+<div class="bg-white bg-opacity-90 rounded-lg shadow-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">{% trans "Notifications" %}</h1>
+        {% if notifications %}
+        <form method="post" action="{% url 'notifications:mark_all_read' %}" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="text-green-600 hover:text-green-700 font-medium">
+                {% trans "Mark all as read" %}
+            </button>
+        </form>
+        {% endif %}
+    </div>
+
+    <div class="space-y-4">
+        {% for notification in notifications %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300 {% if not notification.is_read %}border-l-4 border-green-500{% endif %}">
+            <div class="p-6">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900">{{ notification.title }}</h2>
+                        <p class="mt-1 text-sm text-gray-500">{{ notification.created_at|date:"F j, Y, g:i a" }}</p>
+                    </div>
+                    {% if not notification.is_read %}
+                    <form method="post" action="{% url 'notifications:mark_read' notification.id %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="text-green-600 hover:text-green-700">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                <p class="mt-2 text-gray-600">{{ notification.message }}</p>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <h3 class="mt-2 text-lg font-medium text-gray-900">{% trans "No notifications" %}</h3>
+            <p class="mt-1 text-gray-500">{% trans "You don't have any notifications yet." %}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

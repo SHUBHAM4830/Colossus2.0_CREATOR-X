@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Farmer Dashboard" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">{% trans "Farmer Dashboard" %}</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- My Crops Section -->
+            <div class="bg-green-50 rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-green-800 mb-4">{% trans "My Crops" %}</h2>
+                {% if crops %}
+                    <div class="space-y-4">
+                        {% for crop in crops %}
+                            <div class="bg-white rounded-lg p-4 shadow">
+                                <h3 class="font-medium text-gray-900">{{ crop.name }}</h3>
+                                <p class="text-sm text-gray-600">{{ crop.description }}</p>
+                                <div class="mt-2 flex justify-between items-center">
+                                    <span class="text-sm font-medium text-green-600">{{ crop.quantity }} {% trans "units" %}</span>
+                                    <span class="text-sm font-medium text-green-600">₹{{ crop.price }}/{% trans "unit" %}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-600">{% trans "No crops listed yet." %}</p>
+                    <a href="{% url 'crops:add' %}" class="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                        {% trans "Add New Crop" %}
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- Demand Responses Section -->
+            <div class="bg-green-50 rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-green-800 mb-4">{% trans "Demand Responses" %}</h2>
+                {% if demand_responses %}
+                    <div class="space-y-4">
+                        {% for response in demand_responses %}
+                            <div class="bg-white rounded-lg p-4 shadow">
+                                <h3 class="font-medium text-gray-900">{{ response.demand.crop_name }}</h3>
+                                <p class="text-sm text-gray-600">{{ response.demand.description }}</p>
+                                <div class="mt-2">
+                                    <span class="text-sm font-medium text-green-600">{% trans "Your Response" %}: {{ response.quantity }} {% trans "units" %}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-600">{% trans "No demand responses yet." %}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">{% trans "Quick Actions" %}</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="{% url 'crops:create' %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-center">
+                    {% trans "Add New Crop" %}
+                </a>
+                <a href="{% url 'crops:list' %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-center">
+                    {% trans "View All Crops" %}
+                </a>
+                <a href="{% url 'bidding:demand_list' %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-center">
+                    {% trans "View Demands" %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
