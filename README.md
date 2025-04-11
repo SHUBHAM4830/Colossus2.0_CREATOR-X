@@ -1,38 +1,35 @@
-🌾 KRISHIBAZAAR
-KRISHIBAZAAR is a smart, multilingual web application designed to bridge the gap between farmers and buyers by removing middlemen and enabling direct transactions. Built with Django, it features crop listings, live bidding, multilingual crop recommendations, buyer demands, and more — making agriculture more accessible, profitable, and efficient.
+# 🌾 KRISHIBAZAAR
 
-🔥 Key Features
-👨‍🌾 Farmer & Buyer Portals – Separate dashboards with role-based access
+**KRISHIBAZAAR** is a smart, multilingual web application designed to bridge the gap between **farmers** and **buyers** by removing middlemen and enabling direct transactions. Built with **Django**, it features crop listings, live bidding, multilingual crop recommendations, buyer demands, and more — making agriculture more accessible, profitable, and efficient.
 
-🧠 Crop Recommendation System – Predicts suitable crops based on soil and climate data
+---
 
-🌐 Multilingual Interface – Farmers can use the app in their preferred language
+## 🔥 Key Features
 
-📦 Crop Listings (CRUD) – Farmers can upload, edit, and delete crop listings
+- 👨‍🌾 **Farmer & Buyer Portals** – Separate dashboards with role-based access  
+- 🧠 **Crop Recommendation System** – Predicts suitable crops based on soil and climate data  
+- 🌐 **Multilingual Interface** – Farmers can use the app in their preferred language  
+- 📦 **Crop Listings (CRUD)** – Farmers can upload, edit, and delete crop listings  
+- 📢 **Buyer Demand Notifications** – Buyers can post demands, farmers get alerts  
+- 💰 **Live Bidding System** – Real-time bidding for crops  
+- 📈 **Soil Testing Input** – Farmers can enter soil parameters to get recommendations  
+- 🎨 Fully responsive UI using **Tailwind CSS**
 
-📢 Buyer Demand Notifications – Buyers can post demands, farmers get alerts
+---
 
-💰 Live Bidding System – Real-time bidding for crops
+## 🛠️ Tech Stack
 
-📈 Soil Testing Input – Farmers can enter soil parameters to get recommendations
+- **Backend**: Python, Django, SQLite  
+- **Frontend**: HTML5, Tailwind CSS, JavaScript (AJAX)  
+- **Machine Learning**: Scikit-learn, joblib (crop recommendation model)  
+- **Multilingual Support**: Django’s `i18n` and translation files  
+- **Database**: SQLite (easily upgradeable to PostgreSQL or MySQL)
 
-🎨 Fully responsive UI using Tailwind CSS
+---
 
-🛠️ Tech Stack
-Backend: Python, Django, SQLite
+## 📁 Folder Structure
 
-Frontend: HTML5, Tailwind CSS, JavaScript (AJAX)
-
-Machine Learning: Scikit-learn, joblib (crop recommendation model)
-
-Multilingual Support: Django’s i18n and translation files
-
-Database: SQLite (easily upgradeable to PostgreSQL or MySQL)
-
-📁 Folder Structure
-bash
-Copy
-Edit
+```
 krishibazaar/
 ├── crop_recommendation/
 │   └── model.pkl  # Trained ML model
@@ -47,10 +44,13 @@ krishibazaar/
 ├── manage.py
 ├── README.md
 └── requirements.txt
-🚀 Getting Started
-bash
-Copy
-Edit
+```
+
+---
+
+## 🚀 Getting Started
+
+```bash
 # Clone the repository
 git clone https://github.com/yourusername/krishibazaar.git
 cd krishibazaar
@@ -67,18 +67,29 @@ python manage.py migrate
 
 # Start the server
 python manage.py runserver
-Open your browser:
-👉 http://127.0.0.1:8000/
+```
 
-📸 Screenshots
-Farmer Dashboard	Buyer Dashboard	Crop Recommendation
-🤖 Crop Recommendation API
-POST /get_crop/
-Input Parameters:
+Open your browser and go to:  
+👉 `http://127.0.0.1:8000/`
 
-json
-Copy
-Edit
+---
+
+## 📸 Screenshots
+
+| Farmer Dashboard | Buyer Dashboard | Crop Recommendation |
+|------------------|------------------|-----------------------|
+| ![farmer](https://via.placeholder.com/300x180.png?text=Farmer+Dashboard) | ![buyer](https://via.placeholder.com/300x180.png?text=Buyer+Dashboard) | ![recommend](https://via.placeholder.com/300x180.png?text=Crop+Recommendation) |
+
+*(Replace these placeholders with your own screenshots for better presentation)*
+
+---
+
+## 🤖 Crop Recommendation API
+
+**POST** `/get_crop/`  
+**Input Parameters:**
+
+```json
 {
   "N": 80,
   "P": 40,
@@ -88,66 +99,70 @@ Edit
   "ph": 6.5,
   "rainfall": 100.0
 }
-Response:
+```
 
-json
-Copy
-Edit
+**Response:**
+
+```json
 {
   "crop": "rice"
 }
-🌍 Languages Supported
-English
+```
 
-Hindi
+---
 
-Marathi
+## 🌍 Languages Supported
 
-Bengali (add more as needed)
+- English  
+- Hindi  
+- Marathi  
+- Bengali  
+*(More languages can be added easily)*
 
-Farmers can switch language preferences via a simple dropdown on the dashboard.
+Users can change the language via a dropdown on the dashboard.
 
-🔐 Role-Based Access
-Farmers can:
+---
 
-Add/Edit/Delete crops
+## 🔐 Role-Based Access
 
-View buyer demands
+### 🧑‍🌾 Farmers Can:
 
-Participate in bidding
+- Add, edit, and delete crop listings  
+- View buyer demands  
+- Participate in live bidding  
+- Use the crop recommendation tool
 
-Use crop recommendation
+### 🧑‍💼 Buyers Can:
 
-Buyers can:
+- View available crops  
+- Post crop demands  
+- Participate in live bidding
 
-View listed crops
+---
 
-Post demands
+## 🚧 Future Scope
 
-Participate in live bidding
+- Integration with real-time weather and soil APIs  
+- Payment gateway integration  
+- Real-time chat between farmers and buyers  
+- Mobile app using Flutter or React Native  
+- Admin dashboard for analytics and moderation
 
-🚧 Future Scope
-Integration with real-time weather/soil APIs
+---
 
-Payment gateway for secure transactions
+## 🙏 Acknowledgements
 
-Live chat between farmers and buyers
+- Crop dataset from [Kaggle](https://www.kaggle.com/)  
+- Django Documentation  
+- Tailwind CSS  
+- OpenWeatherMap API (optional)
 
-Mobile app (Flutter/React Native)
+---
 
-Admin dashboard for analytics & moderation
+## 👨‍💻 Author
 
-🙏 Acknowledgements
-Crop dataset from Kaggle
+**Your Name** – [@yourgithub](https://github.com/yourusername)  
 
-Django Docs
+If you found this project useful, don’t forget to ⭐ the repo and share it with others!
 
-Tailwind CSS
-
-OpenWeatherMap API (optional integration)
-
-👨‍💻 Author
-Creator-X
-
-If you like this project, ⭐ the repo and share it with your peers!
-
+---
