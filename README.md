@@ -161,7 +161,7 @@ Users can change the language via a dropdown on the dashboard.
 
 ## 👨‍💻 Author
 
-**Your Name** – [@yourgithub](https://github.com/yourusername)  
+**Your Name** – [CREATOR-X]
 
 If you found this project useful, don’t forget to ⭐ the repo and share it with others!
 
