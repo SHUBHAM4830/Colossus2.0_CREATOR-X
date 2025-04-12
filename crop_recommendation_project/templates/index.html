@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="page_title">Crop Recommendation System</title>
+    <link rel="stylesheet" href="../static/css/styles.css">
+    <script src="../static/js/script.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 data-i18n="main_heading">Crop Recommendation System</h1>
+            <div class="language-selector">
+                <button class="lang-btn" data-lang="en">English</button>
+                <button class="lang-btn" data-lang="hi">हिंदी</button>
+                <button class="lang-btn" data-lang="kn">ಕನ್ನಡ</button>
+            </div>
+        </header>
+
+        <main>
+            <section class="form-section">
+                <h2 data-i18n="form_heading">Enter Soil and Climate Data</h2>
+                <form action="/predict" method="POST" id="crop-form">
+                    <input type="hidden" name="language" id="language-input" value="en">
+
+                    <div class="form-group">
+                        <label for="nitrogen" data-i18n="nitrogen">Nitrogen (N):</label>
+                        <input type="number" id="nitrogen" name="nitrogen" step="0.01" required>
+                        <span class="unit">kg/ha</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phosphorus" data-i18n="phosphorus">Phosphorus (P):</label>
+                        <input type="number" id="phosphorus" name="phosphorus" step="0.01" required>
+                        <span class="unit">kg/ha</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="potassium" data-i18n="potassium">Potassium (K):</label>
+                        <input type="number" id="potassium" name="potassium" step="0.01" required>
+                        <span class="unit">kg/ha</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="temperature" data-i18n="temperature">Temperature:</label>
+                        <input type="number" id="temperature" name="temperature" step="0.01" required>
+                        <span class="unit">°C</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="humidity" data-i18n="humidity">Humidity:</label>
+                        <input type="number" id="humidity" name="humidity" step="0.01" required>
+                        <span class="unit">%</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ph" data-i18n="ph">pH:</label>
+                        <input type="number" id="ph" name="ph" step="0.01" min="0" max="14" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rainfall" data-i18n="rainfall">Rainfall:</label>
+                        <input type="number" id="rainfall" name="rainfall" step="0.01" required>
+                        <span class="unit">mm</span>
+                    </div>
+
+                    <button type="submit" class="submit-btn" data-i18n="submit_btn">Get Recommendation</button>
+                </form>
+            </section>
+
+            <section class="result-section" id="result-section">
+                {% if prediction %}
+                <div class="result-card">
+                    <h2 data-i18n="result_heading">Recommended Crop</h2>
+                    <div class="crop-result">
+                        <p data-i18n="crop_recommendation">Based on your input, the recommended crop is:</p>
+                        <h3 class="crop-name">{{ prediction }}</h3>
+                    </div>
+                </div>
+                {% endif %}
+            </section>
+        </main>
+
+        <footer>
+            <p data-i18n="footer_text">© 2025 Crop Recommendation System</p>
+        </footer>
+    </div>
+</body>
+</html>
