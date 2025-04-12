@@ -1,0 +1,35 @@
+{% extends 'crop_quality/base.html' %}
+
+{% block content %}
+<div class="upload-form">
+    <h2>Upload Your Crop Image</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div style="margin-bottom: 1rem;">
+            <input type="file" name="crop_image" accept="image/*" required>
+        </div>
+        <button type="submit" class="btn">Analyze Crop Quality</button>
+    </form>
+</div>
+
+{% if recent_images %}
+<div style="margin-top: 2rem;">
+    <h2>Recent Analyses</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
+        {% for image in recent_images %}
+        <div class="result {{ image.quality }}">
+            <img src="{{ image.image.url }}" alt="Analyzed crop" style="width: 100%; height: 150px; object-fit: cover; border-radius: 4px;">
+            <div style="padding: 1rem;">
+                <h3>Quality: {{ image.quality|title }}</h3>
+                <p><strong>Remarks:</strong> {{ image.remarks }}</p>
+                <p><small>{{ image.uploaded_at|date:"F j, Y, g:i a" }}</small></p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div style="text-align: center; margin-top: 1rem;">
+        <a href="{% url 'history' %}" class="btn">View Full History</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

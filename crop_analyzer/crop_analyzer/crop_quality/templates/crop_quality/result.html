@@ -1,0 +1,21 @@
+{% extends 'crop_quality/base.html' %}
+
+{% block content %}
+<div class="result {{ crop_image.quality }}">
+    <h2>Analysis Results</h2>
+    <div style="display: flex; gap: 2rem; margin-top: 1rem;">
+        <div style="flex: 1;">
+            <img src="{{ crop_image.image.url }}" alt="Analyzed crop" style="max-width: 100%; border-radius: 4px;">
+        </div>
+        <div style="flex: 1;">
+            <h3>Quality: {{ crop_image.quality|title }}</h3>
+            <p><strong>Remarks:</strong> {{ crop_image.remarks }}</p>
+            <p><strong>Upload Time:</strong> {{ crop_image.uploaded_at|date:"F j, Y, g:i a" }}</p>
+        </div>
+    </div>
+</div>
+
+<div style="margin-top: 2rem; text-align: center;">
+    <a href="{% url 'home' %}" class="btn">Analyze Another Image</a>
+</div>
+{% endblock %}
